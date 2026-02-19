@@ -29,7 +29,7 @@ export default function Navbar() {
 
           <div className="hidden xl:flex items-center gap-3 px-6 py-3 bg-slate-50/50 rounded-3xl border border-slate-100">
             <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></div>
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Mainframe Link: High Priority</span>
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Mainframe Status: Normal</span>
           </div>
         </div>
 
