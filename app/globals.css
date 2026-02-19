@@ -6,25 +6,58 @@
 
 @layer base {
   body {
-    @apply text-slate-900 antialiased font-sans bg-slate-50;
+    @apply text-slate-900 antialiased font-sans transition-colors duration-500 bg-[#fafaff];
+    background-image:
+      radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.1) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, rgba(236, 72, 153, 0.08) 0px, transparent 50%);
     min-height: 100vh;
   }
 }
 
 @layer components {
   .glass {
-    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-xl;
+    @apply bg-white/80 backdrop-blur-2xl border border-white/50 shadow-[0_20px_50px_rgba(8, _112, _184, _0.05)];
+  }
+
+  .floating-nav-container {
+    @apply fixed top-10 left-0 right-0 z-50 flex justify-center px-8;
   }
 
   .floating-nav {
-    @apply fixed top-6 left-6 right-6 z-50 glass rounded-2xl p-4 flex items-center justify-between;
+    @apply w-full max-w-7xl glass rounded-[3rem] px-10 h-24 flex items-center justify-between transition-all duration-700 ring-1 ring-black/[0.03];
   }
 
   .gradient-text {
-    @apply text-indigo-600 font-bold;
+    @apply text-transparent bg-clip-text bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-700 font-extrabold;
   }
 
-  .animate-in {
-    @apply opacity-100;
+  .animate-entrance {
+    animation: flowIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
+
+  @keyframes flowIn {
+    from {
+      opacity: 0;
+      transform: translateY(24px) scale(0.99);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-200 rounded-full hover:bg-slate-300;
 }

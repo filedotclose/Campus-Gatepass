@@ -5,6 +5,8 @@ import WardenView from "@/components/dashboard/WardenView";
 import LibrarianView from "@/components/dashboard/LibrarianView";
 import Navbar from "@/components/dashboard/Navbar";
 
+export const dynamic = "force-dynamic";
+
 export default async function Dashboard() {
   const user = await getUserFromToken();
 
@@ -12,7 +14,6 @@ export default async function Dashboard() {
     redirect("/login");
   }
 
-  // user is now guaranteed to be IUser
   const currentUser = user;
 
   let roleView;
@@ -28,8 +29,17 @@ export default async function Dashboard() {
       roleView = <LibrarianView user={currentUser} />;
       break;
     default:
-      roleView = <div>Invalid role</div>;
+      roleView = <div className="p-10 text-center font-black text-red-500">ERR: INVALID_ROLE_ACCESS</div>;
   }
 
-  return <div>Dashboard Hub</div>;
+  return (
+    <div className="relative min-h-screen">
+      <Navbar />
+      <main className="pt-44 pb-20 px-8">
+        <div className="animate-entrance">
+          {roleView}
+        </div>
+      </main>
+    </div>
+  );
 }
