@@ -12,7 +12,9 @@
 
 # testing
 /coverage
-/scripts
+
+#ignore scrips
+scripts/
 
 # next.js
 /.next/
