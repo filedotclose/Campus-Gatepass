@@ -43,6 +43,12 @@ export default function WardenView({ user }: Props) {
 
   const pendingPasses = passes.filter(p => p.status === "PENDING");
   const activePasses = passes.filter(p => p.status === "APPROVED" || p.status === "IN_LIBRARY");
+  const historyPasses = passes.filter(p => p.status === "RETURNED");
+
+  const formatTime = (date: any) => {
+    if (!date) return "--:--";
+    return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
 
   return (
     <div className="max-w-7xl mx-auto space-y-10 animate-in slide-in-from-bottom duration-700">
@@ -87,7 +93,18 @@ export default function WardenView({ user }: Props) {
           </svg>
         </div>
         <div className="relative z-10 space-y-4">
-          <h3 className="text-indigo-400 text-sm font-black uppercase tracking-[0.3em]">Security Intelligence</h3>
+          <div className="flex justify-between items-start">
+            <h3 className="text-indigo-400 text-sm font-black uppercase tracking-[0.3em]">Security Intelligence</h3>
+            <button
+              onClick={fetchPasses}
+              className="text-white/40 hover:text-white transition-colors flex items-center gap-2 text-[10px] font-black uppercase tracking-widest"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Refresh Feed
+            </button>
+          </div>
           <p className="text-white text-2xl font-bold max-w-2xl leading-tight tracking-tight">
             All systems operational. <span className="text-slate-400">Ensure every student check-out is visually confirmed against the digital pass record.</span>
           </p>
@@ -171,28 +188,41 @@ export default function WardenView({ user }: Props) {
                 <tr className="bg-slate-50/10">
                   <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] border-b border-slate-100">Subject</th>
                   <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] border-b border-slate-100">Lifecycle</th>
-                  <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] border-b border-slate-100">Logistics</th>
+                  <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] border-b border-slate-100">Logistics Timeline</th>
                   <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] border-b border-slate-100 text-right">Gate Ops</th>
                 </tr>
               </thead>
               <tbody>
                 {activePasses.map(pass => (
                   <tr key={pass._id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-10 py-8 border-b border-slate-50 font-black text-slate-800 tracking-tight">{pass.studentId.name}</td>
-                    <td className="px-10 py-8 border-b border-slate-50">
-                      <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 text-indigo-700 rounded-xl text-[10px] font-black uppercase tracking-widest ring-1 ring-indigo-100">
-                        {pass.status}
+                    <td className="px-10 py-8 border-b border-slate-50 font-black text-slate-800 tracking-tight">
+                      <div className="flex flex-col">
+                        <span>{pass.studentId.name}</span>
+                        <span className="text-[9px] text-slate-400 font-bold uppercase">{pass.studentId.rollNo}</span>
                       </div>
                     </td>
                     <td className="px-10 py-8 border-b border-slate-50">
-                      {pass.hostelOutTime ? (
-                        <div className="text-[10px] font-black space-y-1">
-                          <div className="text-slate-400 uppercase tracking-widest">Exit Timestamp:</div>
-                          <div className="text-slate-800 text-sm tracking-tight">{new Date(pass.hostelOutTime).toLocaleTimeString()}</div>
+                      <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 text-indigo-700 rounded-xl text-[10px] font-black uppercase tracking-widest ring-1 ring-indigo-100">
+                        {pass.status.replace("_", " ")}
+                      </div>
+                    </td>
+                    <td className="px-10 py-8 border-b border-slate-50">
+                      <div className="flex items-center gap-4">
+                        <div className="flex flex-col items-center">
+                          <span className={`text-[8px] font-black uppercase ${pass.hostelOutTime ? 'text-indigo-600' : 'text-slate-300'}`}>Hostel Exit</span>
+                          <span className="text-xs font-bold text-slate-700">{formatTime(pass.hostelOutTime)}</span>
                         </div>
-                      ) : (
-                        <span className="text-[10px] font-black text-slate-200 uppercase tracking-widest italic">Ground Locked</span>
-                      )}
+                        <div className="w-4 h-[1px] bg-slate-200 mt-2"></div>
+                        <div className="flex flex-col items-center">
+                          <span className={`text-[8px] font-black uppercase ${pass.libraryInTime ? 'text-indigo-600' : 'text-slate-300'}`}>Lib Entry</span>
+                          <span className="text-xs font-bold text-slate-700">{formatTime(pass.libraryInTime)}</span>
+                        </div>
+                        <div className="w-4 h-[1px] bg-slate-200 mt-2"></div>
+                        <div className="flex flex-col items-center">
+                          <span className={`text-[8px] font-black uppercase ${pass.libraryOutTime ? 'text-indigo-600' : 'text-slate-300'}`}>Lib Exit</span>
+                          <span className="text-xs font-bold text-slate-700">{formatTime(pass.libraryOutTime)}</span>
+                        </div>
+                      </div>
                     </td>
                     <td className="px-10 py-8 border-b border-slate-50 text-right space-x-3">
                       {!pass.hostelOutTime && (
@@ -203,7 +233,7 @@ export default function WardenView({ user }: Props) {
                           Open Gate
                         </button>
                       )}
-                      {pass.status === "IN_LIBRARY" && (
+                      {(pass.status === "IN_LIBRARY" || (pass.status === "APPROVED" && pass.hostelOutTime)) && (
                         <button
                           onClick={() => handleAction("hostel-entry", pass._id)}
                           className="bg-indigo-600 text-white font-black text-[10px] uppercase tracking-widest px-6 py-4 rounded-2xl hover:bg-indigo-700 transition-all active:scale-95 shadow-xl shadow-indigo-200"
@@ -216,6 +246,48 @@ export default function WardenView({ user }: Props) {
                 ))}
                 {activePasses.length === 0 && (
                   <tr><td colSpan={4} className="py-24 text-center font-black text-slate-300 uppercase tracking-[0.5em] text-sm">Quiet night at the entrance</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section className="bg-white rounded-[3rem] shadow-sm border border-slate-100 overflow-hidden ring-1 ring-slate-200/50">
+          <div className="px-10 py-8 border-b border-slate-50 bg-slate-50/30 flex justify-between items-center">
+            <h3 className="text-2xl font-black text-slate-800 tracking-tight">Movement History</h3>
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Completed Sessions</span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-50/10">
+                  <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] border-b border-slate-100">Identity</th>
+                  <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] border-b border-slate-100">Hostel Exit</th>
+                  <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] border-b border-slate-100">Lib In/Out</th>
+                  <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] border-b border-slate-100">Hostel Re-entry</th>
+                </tr>
+              </thead>
+              <tbody>
+                {historyPasses.map(pass => (
+                  <tr key={pass._id} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-10 py-8 border-b border-slate-50">
+                      <div className="font-black text-slate-800 tracking-tight">{pass.studentId.name}</div>
+                      <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{pass.studentId.rollNo}</div>
+                    </td>
+                    <td className="px-10 py-8 border-b border-slate-50">
+                      <div className="text-sm font-bold text-slate-700">{formatTime(pass.hostelOutTime)}</div>
+                    </td>
+                    <td className="px-10 py-8 border-b border-slate-50">
+                      <div className="text-[10px] font-bold text-slate-600">IN: {formatTime(pass.libraryInTime)}</div>
+                      <div className="text-[10px] font-bold text-slate-600">OUT: {formatTime(pass.libraryOutTime)}</div>
+                    </td>
+                    <td className="px-10 py-8 border-b border-slate-50">
+                      <div className="text-sm font-black text-indigo-600">{formatTime(pass.hostelInTime)}</div>
+                    </td>
+                  </tr>
+                ))}
+                {historyPasses.length === 0 && (
+                  <tr><td colSpan={4} className="py-24 text-center font-black text-slate-300 uppercase tracking-[0.5em] text-sm">No history yet</td></tr>
                 )}
               </tbody>
             </table>

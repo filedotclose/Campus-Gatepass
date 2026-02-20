@@ -57,9 +57,22 @@ export default function StudentView({ user }: Props) {
             Your session is synchronized.
           </p>
         </div>
-        <div className="hidden lg:flex items-center gap-3 bg-white/50 backdrop-blur-sm px-6 py-3 rounded-2xl border border-slate-200/50 shadow-sm">
-          <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></div>
-          <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Facility Status: Operational</span>
+        <div className="hidden lg:flex items-center gap-5 bg-white/50 backdrop-blur-sm px-6 py-3 rounded-2xl border border-slate-200/50 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></div>
+            <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Facility Status: Operational</span>
+          </div>
+          <div className="w-[1px] h-4 bg-slate-200"></div>
+          <button
+            onClick={fetchPasses}
+            disabled={loading}
+            className="flex items-center gap-2 text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:text-indigo-700 transition-colors disabled:opacity-50"
+          >
+            <svg className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Sync Data
+          </button>
         </div>
       </header>
 

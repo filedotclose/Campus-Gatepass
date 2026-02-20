@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Pass from "@/models/Pass";
+import ActivityLog from "@/models/ActivityLog";
+import LibraryRegistry from "@/models/LibraryRegistry";
 import { getUserFromToken } from "@/lib/auth";
 
 export async function POST(req: Request) {
@@ -17,7 +19,7 @@ export async function POST(req: Request) {
 
     await connectDB();
 
-    const pass = await Pass.findById(passId);
+    const pass = await Pass.findById(passId).populate("studentId");
     if (!pass) {
       return NextResponse.json({ message: "Pass not found" }, { status: 404 });
     }
@@ -34,6 +36,24 @@ export async function POST(req: Request) {
     pass.status = "IN_LIBRARY";
     pass.libraryInTime = new Date();
     await pass.save();
+
+    // Create Activity Log
+    await ActivityLog.create({
+      studentId: pass.studentId._id,
+      passId: pass._id,
+      activityType: "LIBRARY_ENTRY",
+      location: "Library Entrance"
+    });
+
+    // Create Library Registry Entry
+    await LibraryRegistry.create({
+      studentId: pass.studentId._id,
+      passId: pass._id,
+      date: new Date().toISOString().split("T")[0],
+      name: pass.studentId.name,
+      rollNo: pass.studentId.rollNo,
+      inTime: pass.libraryInTime
+    });
 
     return NextResponse.json(pass);
   } catch (error) {

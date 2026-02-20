@@ -9,22 +9,31 @@ interface Props {
 
 export default function LibrarianView({ user }: Props) {
   const [passes, setPasses] = useState<any[]>([]);
+  const [registry, setRegistry] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchPasses = async () => {
+  const fetchData = async () => {
+    setLoading(true);
     try {
-      const res = await fetch("/api/pass");
-      const data = await res.json();
-      setPasses(data);
+      const [passesRes, registryRes] = await Promise.all([
+        fetch("/api/pass"),
+        fetch("/api/pass/registry")
+      ]);
+      const [passesData, registryData] = await Promise.all([
+        passesRes.json(),
+        registryRes.json()
+      ]);
+      setPasses(passesData);
+      setRegistry(registryData);
     } catch (err) {
-      console.error("Failed to fetch passes");
+      console.error("Failed to fetch data");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchPasses();
+    fetchData();
   }, []);
 
   const handleAction = async (endpoint: string, passId: string) => {
@@ -35,10 +44,15 @@ export default function LibrarianView({ user }: Props) {
     });
 
     if (res.ok) {
-      fetchPasses();
+      fetchData();
     } else {
       console.warn("Action failed");
     }
+  };
+
+  const formatTime = (date: any) => {
+    if (!date) return "--:--";
+    return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
   return (
@@ -51,6 +65,16 @@ export default function LibrarianView({ user }: Props) {
           </p>
         </div>
         <div className="flex gap-4">
+          <button
+            onClick={fetchData}
+            disabled={loading}
+            className="bg-white/50 hover:bg-white px-6 py-4 rounded-3xl border border-slate-200 flex items-center gap-4 transition-all active:scale-95 disabled:opacity-50"
+          >
+            <svg className={`w-4 h-4 text-indigo-600 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Refresh Registry</span>
+          </button>
           <div className="bg-emerald-50 px-6 py-4 rounded-3xl border border-emerald-100 flex items-center gap-4">
             <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
             <span className="text-[10px] font-black text-emerald-700 uppercase tracking-widest">Digital Registry Online</span>
@@ -93,15 +117,16 @@ export default function LibrarianView({ user }: Props) {
                 <span className="text-xl font-black text-indigo-600">{passes.filter(p => p.status === "IN_LIBRARY").length}</span>
               </div>
               <div className="flex justify-between items-center p-4 bg-slate-50 rounded-2xl">
-                <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Avg. Stay</span>
-                <span className="text-xl font-black text-indigo-600">~ 2h</span>
+                <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Visit Log</span>
+                <span className="text-xl font-black text-indigo-600">{registry.length}</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="lg:col-span-8">
-          <section className="bg-white rounded-[3.5rem] shadow-sm border border-slate-100 overflow-hidden ring-1 ring-slate-200/50 min-h-[600px]">
+        <div className="lg:col-span-8 space-y-12">
+          {/* Active Traffic Table */}
+          <section className="bg-white rounded-[3.5rem] shadow-sm border border-slate-100 overflow-hidden ring-1 ring-slate-200/50">
             <div className="p-8 border-b border-slate-50 flex items-center gap-4 bg-slate-50/50">
               <div className="p-3 bg-indigo-600 text-white rounded-2xl shadow-lg shadow-indigo-100">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -155,9 +180,13 @@ export default function LibrarianView({ user }: Props) {
                         ) : (
                           <button
                             onClick={() => handleAction("library-exit", pass._id)}
-                            className="bg-indigo-50 text-indigo-700 font-black text-[10px] uppercase tracking-widest px-8 py-4 rounded-2xl hover:bg-indigo-100 hover:scale-105 transition-all active:scale-95 border border-indigo-200"
+                            disabled={!!pass.libraryOutTime}
+                            className={`font-black text-[10px] uppercase tracking-widest px-8 py-4 rounded-2xl transition-all shadow-xl ${pass.libraryOutTime
+                                ? "bg-slate-100 text-slate-400 cursor-not-allowed shadow-none"
+                                : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100 hover:scale-105 active:scale-95 border border-indigo-200"
+                              }`}
                           >
-                            Mark Departure
+                            {pass.libraryOutTime ? "Marked Departed" : "Mark Departure"}
                           </button>
                         )}
                       </td>
@@ -165,6 +194,53 @@ export default function LibrarianView({ user }: Props) {
                   ))}
                   {passes.length === 0 && (
                     <tr><td colSpan={3} className="py-40 text-center font-black text-slate-300 uppercase tracking-[0.5em] text-sm">Quiet hours in session</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          {/* Library Registry (Date-wise visits) */}
+          <section className="bg-slate-900 rounded-[3.5rem] shadow-2xl overflow-hidden ring-1 ring-white/10">
+            <div className="p-8 border-b border-white/5 flex items-center gap-4 bg-white/5">
+              <div className="p-3 bg-white/10 text-white rounded-2xl shadow-inner border border-white/5">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-2xl font-black text-white tracking-tight leading-none mb-1">Today's Library Registry</h3>
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Verified visits for {new Date().toLocaleDateString()}</p>
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-black/20">
+                    <th className="px-10 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] border-b border-white/5">Learner</th>
+                    <th className="px-10 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] border-b border-white/5">Entry</th>
+                    <th className="px-10 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] border-b border-white/5">Exit</th>
+                    <th className="px-10 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] border-b border-white/5 text-right">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {registry.map(record => (
+                    <tr key={record._id} className="group hover:bg-white/5 transition-all duration-300">
+                      <td className="px-10 py-8">
+                        <div className="font-black text-white tracking-tight">{record.name}</div>
+                        <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{record.rollNo}</div>
+                      </td>
+                      <td className="px-10 py-8 text-slate-300 font-bold text-sm tracking-tight">{formatTime(record.inTime)}</td>
+                      <td className="px-10 py-8 text-slate-300 font-bold text-sm tracking-tight">{formatTime(record.outTime)}</td>
+                      <td className="px-10 py-8 text-right">
+                        <span className={`inline-flex px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${record.outTime ? 'text-emerald-400 bg-emerald-400/10' : 'text-indigo-400 bg-indigo-400/10'}`}>
+                          {record.outTime ? 'Completed' : 'Reading'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                  {registry.length === 0 && (
+                    <tr><td colSpan={4} className="py-24 text-center font-black text-slate-700 uppercase tracking-[0.5em] text-sm">Registry is empty today</td></tr>
                   )}
                 </tbody>
               </table>

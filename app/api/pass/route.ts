@@ -16,8 +16,8 @@ export async function GET() {
     if (user.role === "student") {
       query = { studentId: user._id };
     } else if (user.role === "warden") {
-      // Warden sees pending approvals or students currently out
-      query = { status: { $in: ["PENDING", "APPROVED", "IN_LIBRARY"] } };
+      // Warden sees all passes to track history and active movements
+      query = {}; 
     } else if (user.role === "librarian") {
       // Librarian sees students approved (expected) or in library
       query = { status: { $in: ["APPROVED", "IN_LIBRARY"] } };

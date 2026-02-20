@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Pass from "@/models/Pass";
+import ActivityLog from "@/models/ActivityLog";
+import LibraryRegistry from "@/models/LibraryRegistry";
 import { getUserFromToken } from "@/lib/auth";
 
 export async function POST(req: Request) {
@@ -29,6 +31,20 @@ export async function POST(req: Request) {
     pass.libraryOutTime = new Date();
     // We don't change status yet, student is in transit back to hostel
     await pass.save();
+
+    // Create Activity Log
+    await ActivityLog.create({
+      studentId: pass.studentId,
+      passId: pass._id,
+      activityType: "LIBRARY_EXIT",
+      location: "Library Exit"
+    });
+
+    // Update Library Registry Entry
+    await LibraryRegistry.findOneAndUpdate(
+      { passId: pass._id },
+      { outTime: pass.libraryOutTime }
+    );
 
     return NextResponse.json(pass);
   } catch (error) {

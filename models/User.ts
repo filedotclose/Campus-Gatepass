@@ -14,4 +14,7 @@ const userSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
+// Optimization Index
+userSchema.index({ role: 1 });
+
 export default mongoose.models.user || mongoose.model("user", userSchema);

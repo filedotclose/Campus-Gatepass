@@ -22,6 +22,11 @@ const passSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
+// Optimization Indexes
+passSchema.index({ status: 1 });
+passSchema.index({ studentId: 1, status: 1 });
+passSchema.index({ createdAt: -1 });
+
 // Virtuals for travel time
 passSchema.virtual("transitToLibrary").get(function() {
   if (this.hostelOutTime && this.libraryInTime) {

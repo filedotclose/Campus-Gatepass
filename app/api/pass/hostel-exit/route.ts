@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Pass from "@/models/Pass";
+import ActivityLog from "@/models/ActivityLog";
 import { getUserFromToken } from "@/lib/auth";
 
 export async function POST(req: Request) {
@@ -28,6 +29,14 @@ export async function POST(req: Request) {
 
     pass.hostelOutTime = new Date();
     await pass.save();
+
+    // Create Activity Log
+    await ActivityLog.create({
+      studentId: pass.studentId,
+      passId: pass._id,
+      activityType: "HOSTEL_EXIT",
+      location: "Hostel Gate"
+    });
 
     return NextResponse.json(pass);
   } catch (error) {
