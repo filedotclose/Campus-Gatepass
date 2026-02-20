@@ -22,14 +22,14 @@ export default function Navbar() {
               </svg>
             </div>
             <div className="flex flex-col">
-              <span className="text-2xl font-black text-slate-800 leading-none tracking-tighter">GATE<span className="text-indigo-600">PASS</span> <span className="text-slate-400">PRO</span></span>
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-[.4em] mt-1.5 opacity-60">Smart Institution</span>
+              <span className="text-2xl font-black text-slate-800 leading-none tracking-tighter">GATE<span className="text-indigo-600">PASS</span></span>
+              {/* <span className="text-[10px] font-black text-slate-400 uppercase tracking-[.4em] mt-1.5 opacity-60">Smart Institution</span> */}
             </div>
           </div>
 
           <div className="hidden xl:flex items-center gap-3 px-6 py-3 bg-slate-50/50 rounded-3xl border border-slate-100">
             <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></div>
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Mainframe Status: Normal</span>
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Status: Logged in</span>
           </div>
         </div>
 

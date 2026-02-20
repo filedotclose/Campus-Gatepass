@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { connectDB } from "@/lib/db";
-import  User from "@/models/User";
+import User from "@/models/User";
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -9,9 +9,20 @@ import {
 
 export async function POST(req: Request) {
   try {
+    console.log("Login API started");
     await connectDB();
+    console.log("DB connected");
 
-    const { email, password } = await req.json();
+    let body;
+    try {
+      body = await req.json();
+    } catch (e) {
+      console.error("JSON parse error:", e);
+      return NextResponse.json({ message: "Invalid JSON body" }, { status: 400 });
+    }
+
+    const { email, password } = body;
+    console.log("Login attempt for:", email);
 
     if (!email || !password) {
       return NextResponse.json(
@@ -21,6 +32,7 @@ export async function POST(req: Request) {
     }
 
     const user = await User.findOne({ email });
+    console.log("User found:", user ? "Yes" : "No");
 
     if (!user) {
       return NextResponse.json(
@@ -29,10 +41,12 @@ export async function POST(req: Request) {
       );
     }
 
+    console.log("Comparing passwords...");
     const isMatch = await bcrypt.compare(
       password,
       user.passwordHash
     );
+    console.log("Password match:", isMatch);
 
     if (!isMatch) {
       return NextResponse.json(
@@ -41,11 +55,14 @@ export async function POST(req: Request) {
       );
     }
 
+    console.log("Generating tokens...");
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
+    console.log("Tokens generated");
 
     user.refreshToken = refreshToken;
     await user.save();
+    console.log("User token saved");
 
     const response = NextResponse.json({
       message: "Login successful",
@@ -65,10 +82,12 @@ export async function POST(req: Request) {
       path: "/",
     });
 
+    console.log("Login successful, returning response");
     return response;
-  } catch (error) {
+  } catch (error: any) {
+    console.error("CRITICAL Login Error:", error);
     return NextResponse.json(
-      { message: "Server error" },
+      { message: "Server error", detail: error.message },
       { status: 500 }
     );
   }

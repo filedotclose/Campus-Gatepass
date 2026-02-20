@@ -17,8 +17,11 @@
 }
 
 @layer components {
+
+  /* Define glass as a reusable property set using standard CSS variables or local classes */
   .glass {
-    @apply bg-white/70 backdrop-blur-2xl border border-white/50 shadow-[0_20px_50px_rgba(8, 112, 184, 0.05)];
+    @apply bg-white/70 backdrop-blur-2xl border border-white/50;
+    box-shadow: 0 20px 50px rgba(8, 112, 184, 0.05);
   }
 
   .floating-nav-container {
@@ -26,7 +29,11 @@
   }
 
   .floating-nav {
-    @apply w-full max-w-7xl glass rounded-[3rem] px-10 h-24 flex items-center justify-between transition-all duration-700 ring-1 ring-black/[0.03];
+    /* Instead of @apply glass, we use the properties directly or combine them */
+    @apply w-full max-w-7xl rounded-[3rem] px-10 h-24 flex items-center justify-between transition-all duration-700;
+    @apply bg-white/70 backdrop-blur-2xl border border-white/50;
+    box-shadow: 0 20px 50px rgba(8, 112, 184, 0.05);
+    outline: 1px solid rgba(0, 0, 0, 0.03);
   }
 
   .gradient-text {

@@ -15,7 +15,16 @@ export async function getUserFromToken() : Promise<IUser | null> {
     await connectDB();
     const user = await User.findById(decoded.id).select("-passwordHash");
 
-    return user?.toObject() ?? null ;
+    if (!user) return null;
+
+    const userObj = user.toObject();
+    return {
+      _id: userObj._id.toString(),
+      name: userObj.name,
+      rollNo: userObj.rollNo,
+      email: userObj.email,
+      role: userObj.role,
+    } as IUser;
   } catch {
     return null;
   }

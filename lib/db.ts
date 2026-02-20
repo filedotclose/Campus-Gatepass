@@ -6,9 +6,9 @@ export async function connectDB() {
   if (isConnected) return;
 
   try {
-    const conn = process.env.DB;
+    const conn = process.env.MONGODB_URI;
     if (!conn) {
-      throw new Error("DB connection string (process.env.DB) is missing");
+      throw new Error("MONGODB_URI is missing");
     }
 
     await mongoose.connect(conn);
