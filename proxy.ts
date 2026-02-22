@@ -4,7 +4,7 @@ import { jwtVerify } from "jose"; // Using jose for edge-compatible JWT verifica
 
 const ACCESS_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "default_secret");
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Protect /dashboard
