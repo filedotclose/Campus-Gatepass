@@ -25,12 +25,12 @@
   }
 
   .floating-nav-container {
-    @apply fixed top-10 left-0 right-0 z-50 flex justify-center px-8;
+    @apply fixed top-4 sm:top-10 left-0 right-0 z-50 flex justify-center px-4 sm:px-8;
   }
 
   .floating-nav {
     /* Instead of @apply glass, we use the properties directly or combine them */
-    @apply w-full max-w-7xl rounded-[3rem] px-10 h-24 flex items-center justify-between transition-all duration-700;
+    @apply w-full max-w-7xl rounded-2xl sm:rounded-[3rem] px-4 sm:px-10 h-16 sm:h-24 flex items-center justify-between transition-all duration-700;
     @apply bg-white/70 backdrop-blur-2xl border border-white/50;
     box-shadow: 0 20px 50px rgba(8, 112, 184, 0.05);
     outline: 1px solid rgba(0, 0, 0, 0.03);
