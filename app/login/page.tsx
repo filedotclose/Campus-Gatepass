@@ -29,7 +29,7 @@ export default function LoginPage() {
         setError("Invalid email or password. Please try again.");
       }
     } finally {
-      setLoading(false);
+
     }
   };
 
