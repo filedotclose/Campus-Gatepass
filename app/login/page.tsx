@@ -27,6 +27,7 @@ export default function LoginPage() {
         router.refresh();
       } else {
         setError("Invalid email or password. Please try again.");
+        setLoading(false);
       }
     } finally {
 
